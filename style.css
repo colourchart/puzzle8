@@ -288,7 +288,15 @@ h1 {
         width: 100%;
         max-width: 400px;
         margin: 20px 0;
-        order: 10; /* Ensure it comes after game area if flex container used, or just flow */
+        order: 10; /* Moves leaderboard/sidebar after game area */
+    }
+
+    #game-info-section {
+        order: 20; /* Moves About section after sidebar */
+    }
+
+    footer {
+        order: 30; /* Ensures footer is at the very bottom */
     }
 
     #original-image-container {
