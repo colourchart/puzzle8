@@ -390,6 +390,23 @@ saveRecordBtn.addEventListener('click', async () => {
 
 // --- Firebase Leaderboard Logic ---
 
+// ... (previous imports and code)
+
+function calculateScore(time, difficulty, isToday) {
+    let weight = 1;
+    if (difficulty.includes('Normal')) weight = 3;
+    if (difficulty.includes('Hard')) weight = 5;
+
+    // Base Score = (Weight * 1000) / Time
+    // Using 10000 to get distinct integer scores
+    let score = (weight * 10000) / time;
+    
+    // Today's Challenge Bonus: 50%
+    if (isToday) score *= 1.5;
+
+    return Math.floor(score);
+}
+
 async function saveToLeaderboard(time, comment, difficulty, isToday, nickname, country) {
     const difficultyValue = {
         'Hard (8x8 - 64pcs)': 3,
@@ -397,9 +414,12 @@ async function saveToLeaderboard(time, comment, difficulty, isToday, nickname, c
         'Easy (4x4 - 16pcs)': 1
     };
 
+    const score = calculateScore(time, difficulty, isToday);
+
     try {
         await addDoc(collection(db, "leaderboard"), {
             time: time,
+            score: score, // Save score
             comment: comment,
             difficulty: difficulty,
             difficultyVal: difficultyValue[difficulty] || 0,
@@ -415,29 +435,23 @@ async function saveToLeaderboard(time, comment, difficulty, isToday, nickname, c
     }
 }
 
-// Fetch top records from Firebase
 async function updateLeaderboardUI() {
     if (!db) return;
     leaderboardList.innerHTML = '<li>Loading...</li>';
 
-    // Query Strategy: Fetch top 30 candidates prioritized by criteria
-    // Since complex mixed-field sorting requires composite indexes in Firestore,
-    // we will start by fetching records sorted by Priority Group (isToday, difficultyVal)
-    // For simplicity without manual index creation, we will fetch recent good records and filter client-side 
-    // or use a simple compound sort if possible.
-    // Let's rely on client-side sorting for the "top" view to avoid index errors for the user immediately.
-    // We will fetch more rows (e.g. 50) ordered by time, then sort fully in JS. 
-    
     try {
-        // Simple query: Get recent 50 records to show active competition
-        // Ideally: orderBy("isToday", "desc"), orderBy("difficultyVal", "desc"), orderBy("time", "asc")
-        // But this needs index. Let's try basic query and sort in memory for this prototype.
-        const q = query(collection(db, "leaderboard"), orderBy("time", "asc"), limit(50));
+        // Fetch more records to sort client-side
+        const q = query(collection(db, "leaderboard"), orderBy("time", "asc"), limit(100));
         
         const querySnapshot = await getDocs(q);
         let records = [];
         querySnapshot.forEach((doc) => {
-            records.push(doc.data());
+            let data = doc.data();
+            // Backfill score for old records if missing
+            if (data.score === undefined) {
+                data.score = calculateScore(data.time, data.difficulty, data.isToday);
+            }
+            records.push(data);
         });
 
         // Client-side filtering (Expiration)
@@ -453,14 +467,8 @@ async function updateLeaderboardUI() {
             return age < MS_IN_DAY; 
         });
 
-        // Client-side Sorting (Rank Rules)
-        records.sort((a, b) => {
-            const aToday = a.isToday ? 1 : 0;
-            const bToday = b.isToday ? 1 : 0;
-            if (bToday !== aToday) return bToday - aToday; 
-            if (b.difficultyVal !== a.difficultyVal) return b.difficultyVal - a.difficultyVal; 
-            return a.time - b.time;
-        });
+        // Sort by Score (Descending)
+        records.sort((a, b) => b.score - a.score);
 
         // Take Top 3
         records = records.slice(0, 3);
@@ -473,30 +481,28 @@ async function updateLeaderboardUI() {
     }
 }
 
-// Calculate rank just by fetching data and comparing
 async function getPotentialRank(time, difficulty, isToday) {
     if (!db) return 999;
     
-    // Fetch current top records similar to updateLeaderboardUI
     try {
-        const q = query(collection(db, "leaderboard"), orderBy("time", "asc"), limit(50));
+        const q = query(collection(db, "leaderboard"), orderBy("time", "asc"), limit(100));
         const querySnapshot = await getDocs(q);
         let records = [];
-        querySnapshot.forEach((doc) => records.push(doc.data()));
+        querySnapshot.forEach((doc) => {
+            let data = doc.data();
+            if (data.score === undefined) {
+                data.score = calculateScore(data.time, data.difficulty, data.isToday);
+            }
+            records.push(data);
+        });
 
-        const difficultyValue = {
-            'Hard (8x8 - 64pcs)': 3,
-            'Normal (6x6 - 36pcs)': 2,
-            'Easy (4x4 - 16pcs)': 1
-        };
-
+        const currentScore = calculateScore(time, difficulty, isToday);
         const currentRecord = {
-            time: time,
-            difficultyVal: difficultyValue[difficulty] || 0,
-            isToday: isToday || false
+            score: currentScore,
+            timestamp: Date.now() // Needed for filter if strictly applied, but rank check implies active
         };
 
-        // Filter & Sort
+        // Filter
         const now = Date.now();
         const MS_IN_DAY = 24 * 60 * 60 * 1000;
         const MS_IN_5_DAYS = 5 * MS_IN_DAY;
@@ -510,13 +516,8 @@ async function getPotentialRank(time, difficulty, isToday) {
         });
 
         const tempRecords = [...records, currentRecord];
-        tempRecords.sort((a, b) => {
-            const aToday = a.isToday ? 1 : 0;
-            const bToday = b.isToday ? 1 : 0;
-            if (bToday !== aToday) return bToday - aToday; 
-            if (b.difficultyVal !== a.difficultyVal) return b.difficultyVal - a.difficultyVal; 
-            return a.time - b.time;
-        });
+        // Sort by Score
+        tempRecords.sort((a, b) => b.score - a.score);
 
         return tempRecords.findIndex(r => r === currentRecord) + 1;
 
@@ -544,7 +545,7 @@ function renderLeaderboard(records) {
 
         let todayBadge = '';
         if (record.isToday) {
-            todayBadge = '<span class="badge-today">TODAY</span>';
+            todayBadge = '<span class="badge-today">TODAY (+50%)</span>';
         }
         
         const countryHtml = record.country ? `<span style="margin-right: 4px;">${record.country}</span>` : '';
@@ -556,6 +557,11 @@ function renderLeaderboard(records) {
         };
         const commentHtml = record.comment ? `<span class="record-comment">${linkify(record.comment)}</span>` : '';
 
+        // Determine difficulty short name
+        let diffShort = 'Easy';
+        if (record.difficulty.includes('Normal')) diffShort = 'Normal';
+        if (record.difficulty.includes('Hard')) diffShort = 'Hard';
+
         li.innerHTML = `
             <div class="record-header">
                 <div style="display: flex; align-items: center;">
@@ -564,11 +570,11 @@ function renderLeaderboard(records) {
                 </div>
                 <div>
                     ${todayBadge}
-                    <span class="record-difficulty">${record.difficulty}</span>
+                    <span class="record-difficulty" style="font-weight:bold; color:#555;">${record.score?.toLocaleString()} pts</span>
                 </div>
             </div>
             <div class="record-info">
-                <span class="record-time">${record.time.toFixed(1)}s</span>
+                <span class="record-time" style="font-size: 0.85rem; color: #888;">${diffShort} / ${record.time.toFixed(1)}s</span>
                 ${commentHtml}
             </div>
         `;
