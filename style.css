@@ -347,7 +347,8 @@ h1 {
     position: fixed;
     top: 60px; /* Below the toggle button */
     right: 20px;
-    width: 150px;
+    max-width: 200px; /* Increased max-width */
+    width: auto;      /* Auto width to fit image ratio */
     z-index: 1000;
     background-color: rgba(255, 255, 255, 0.9);
     padding: 5px;
@@ -369,15 +370,18 @@ h1 {
     #original-image-container {
         top: 50px;
         right: 10px;
-        width: 120px;
+        max-width: 120px; /* Smaller max-width for mobile */
+        width: auto;
     }
 /* ... rest of media query */
 
 #original-image {
-    max-width: 100%;
+    max-width: 100%; /* Ensure image scales down */
+    max-height: 200px; /* Prevent it from being too tall */
     height: auto;
     border: 1px solid #333;
     display: block;
+    object-fit: contain; /* Ensure full image is visible */
 }
 
 /* Modal Styles */
