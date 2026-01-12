@@ -470,12 +470,16 @@ async function updateLeaderboardUI() {
         // Client-side filtering (Expiration)
         const now = Date.now();
         const MS_IN_DAY = 24 * 60 * 60 * 1000;
+        const MS_IN_3_DAYS = 3 * MS_IN_DAY;
         const MS_IN_5_DAYS = 5 * MS_IN_DAY;
 
         records = records.filter(record => {
             const age = now - record.timestamp;
             if (record.difficulty && record.difficulty.includes('Hard')) {
                 return age < MS_IN_5_DAYS; 
+            }
+            if (record.difficulty && record.difficulty.includes('Normal')) {
+                return age < MS_IN_3_DAYS;
             }
             return age < MS_IN_DAY; 
         });
@@ -517,12 +521,16 @@ async function getPotentialRank(time, difficulty, isToday) {
         // Filter
         const now = Date.now();
         const MS_IN_DAY = 24 * 60 * 60 * 1000;
+        const MS_IN_3_DAYS = 3 * MS_IN_DAY;
         const MS_IN_5_DAYS = 5 * MS_IN_DAY;
 
         records = records.filter(record => {
             const age = now - record.timestamp;
             if (record.difficulty && record.difficulty.includes('Hard')) {
                 return age < MS_IN_5_DAYS; 
+            }
+            if (record.difficulty && record.difficulty.includes('Normal')) {
+                return age < MS_IN_3_DAYS;
             }
             return age < MS_IN_DAY; 
         });
