@@ -7,6 +7,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="notice-bar">
+        <span class="notice-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="red">
+                <path d="M12,8H4A2,2 0 0,0 2,10V14A2,2 0 0,0 4,16H5V20A1,1 0 0,0 6,21H8A1,1 0 0,0 9,20V16H12L17,20V4L12,8M21.5,12C21.5,13.71 20.54,15.26 19,16V8C20.53,8.74 21.5,10.28 21.5,12Z" />
+            </svg>
+        </span>
+        <span class="notice-text">Welcome to the Puzzle Challenge! Enjoy the new Swap Mode!</span>
+    </div>
     <h1>Image Puzzle Game</h1>
     
     <div class="controls">
@@ -48,6 +56,7 @@
         <div id="original-image-container" style="display: none;">
             <img id="original-image" src="" alt="Original">
         </div>
+        <button id="toggle-ref-btn" style="display: none;">👁️ View Ref</button>
         <div id="puzzle-container"></div>
     </div>
     <button id="start-button" style="display: none;">Start Puzzle</button> <!-- Hidden initially, shown after image load -->

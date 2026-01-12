@@ -16,6 +16,7 @@ const startButton = document.getElementById('start-button');
 const todayImageBtn = document.getElementById('today-image-btn');
 const randomImageBtn = document.getElementById('random-image-btn');
 const mainShareBtn = document.getElementById('main-share-btn');
+const toggleRefBtn = document.getElementById('toggle-ref-btn');
 const timerDisplay = document.getElementById('timer');
 const difficultySelector = document.getElementById('difficulty-selector');
 const leaderboardList = document.getElementById('leaderboard-list');
@@ -40,6 +41,19 @@ let isTodayChallenge = false;
 // Initialize Leaderboard
 updateLeaderboardUI();
 
+toggleRefBtn.addEventListener('click', () => {
+    const originalContainer = document.getElementById('original-image-container');
+    if (originalContainer.style.display === 'none' || originalContainer.style.opacity === '0') {
+        originalContainer.style.display = 'flex';
+        originalContainer.style.opacity = '1';
+        toggleRefBtn.textContent = '🙈 Hide Ref';
+    } else {
+        originalContainer.style.display = 'none';
+        originalContainer.style.opacity = '0';
+        toggleRefBtn.textContent = '👁️ View Ref';
+    }
+});
+
 function processImage(src) {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -50,6 +64,8 @@ function processImage(src) {
             const originalContainer = document.getElementById('original-image-container');
             originalImage.src = imageSrc;
             originalContainer.style.display = 'flex';
+            toggleRefBtn.style.display = 'block'; // Show toggle button
+            toggleRefBtn.textContent = '🙈 Hide Ref';
 
             const maxWidth = 500;
             const maxHeight = 500;
@@ -164,7 +180,17 @@ function stopTimer() {
 function createPuzzle() {
     puzzleContainer.innerHTML = '';
     puzzlePieces = [];
-    selectedPiece = null;
+    selectedPiece = null; // Reset selection
+
+    // Show original image again for new game
+    const originalContainer = document.getElementById('original-image-container');
+    if (originalContainer) {
+        originalContainer.style.display = 'flex';
+        originalContainer.style.opacity = '1';
+    }
+    toggleRefBtn.style.display = 'block';
+    toggleRefBtn.textContent = '🙈 Hide Ref';
+
     const pieceWidth = puzzleContainer.clientWidth / gridSize;
     const pieceHeight = puzzleContainer.clientHeight / gridSize;
 
@@ -258,6 +284,13 @@ async function checkCompletion() {
 
     if (isComplete) {
         stopTimer();
+        
+        // Hide original image and toggle button on completion
+        const originalContainer = document.getElementById('original-image-container');
+        if (originalContainer) originalContainer.style.display = 'none';
+        toggleRefBtn.style.display = 'none';
+
+        // Check if user reached Top 3
         const finalTimeStr = timerDisplay.textContent.replace('Time: ', '').replace('s', '');
         const finalTime = parseFloat(finalTimeStr);
         const difficultyText = difficultySelector.options[difficultySelector.selectedIndex].text;

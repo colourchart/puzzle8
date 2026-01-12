@@ -10,8 +10,35 @@ body {
     background-color: #f0f0f0;
 }
 
+#notice-bar {
+    width: 100%;
+    max-width: 600px;
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 10px 15px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border: 1px solid #ffeeba;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    font-size: 0.9rem;
+}
+
+.notice-icon {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.notice-text {
+    font-weight: bold;
+}
+
 h1 {
     text-align: center;
+    margin-top: 0;
 }
 
 .controls {
@@ -302,9 +329,23 @@ h1 {
     transform: scale(1.1);
 }
 
-#original-image-container {
+#toggle-ref-btn {
     position: fixed;
     top: 20px;
+    right: 20px;
+    z-index: 1001; /* Higher than container */
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#original-image-container {
+    position: fixed;
+    top: 60px; /* Below the toggle button */
     right: 20px;
     width: 150px;
     z-index: 1000;
@@ -316,7 +357,21 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: opacity 0.3s;
 }
+
+@media (max-width: 768px) {
+    #toggle-ref-btn {
+        top: 10px;
+        right: 10px;
+    }
+    
+    #original-image-container {
+        top: 50px;
+        right: 10px;
+        width: 120px;
+    }
+/* ... rest of media query */
 
 #original-image {
     max-width: 100%;
