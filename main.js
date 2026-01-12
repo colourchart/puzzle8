@@ -127,6 +127,16 @@ todayImageBtn.addEventListener('click', async () => {
 
         await processImage(todayUrl);
         isTodayChallenge = true;
+        
+        // Enforce Minimum Difficulty: Normal (6)
+        // Select Normal by default if currently Easy
+        if (difficultySelector.value === '4') {
+            difficultySelector.value = '6';
+        }
+        // Disable Easy option
+        const easyOption = difficultySelector.querySelector('option[value="4"]');
+        if (easyOption) easyOption.disabled = true;
+
     } catch (e) {
         console.error(e);
         alert('Failed to load Today\'s Image.');
@@ -144,6 +154,11 @@ randomImageBtn.addEventListener('click', async () => {
     try {
         await processImage(randomUrl);
         isTodayChallenge = false;
+        
+        // Enable Easy option
+        const easyOption = difficultySelector.querySelector('option[value="4"]');
+        if (easyOption) easyOption.disabled = false;
+
     } catch (e) {
         alert('Failed to load Random Image.');
     } finally {
