@@ -1,4 +1,15 @@
+import { firebaseConfig } from './firebase-config.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// Initialize Firebase
+let db;
+try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+} catch (e) {
+    console.error("Firebase Initialization Error. Check firebase-config.js", e);
+}
 
 const puzzleContainer = document.getElementById('puzzle-container');
 const startButton = document.getElementById('start-button');
@@ -20,14 +31,13 @@ const successTime = document.getElementById('success-time');
 let imageSrc = null;
 let puzzlePieces = [];
 let gridSize = 4;
-let selectedPiece = null; // Track selected piece for swapping
+let selectedPiece = null;
 let isScrambling = false;
 let startTime = 0;
 let timerInterval = null;
 let isTodayChallenge = false;
 
 // Initialize Leaderboard
-filterExpiredRecords();
 updateLeaderboardUI();
 
 function processImage(src) {
@@ -36,8 +46,6 @@ function processImage(src) {
         img.crossOrigin = "Anonymous";
         img.onload = () => {
             imageSrc = src;
-
-            // Show original image
             const originalImage = document.getElementById('original-image');
             const originalContainer = document.getElementById('original-image-container');
             originalImage.src = imageSrc;
@@ -75,17 +83,24 @@ todayImageBtn.addEventListener('click', async () => {
     todayImageBtn.textContent = 'Loading...';
     
     try {
-        const response = await fetch('config.json');
-        const config = await response.json();
-        const todayUrl = config.todayImage;
-
-        if (!todayUrl) throw new Error("No image configured");
+        // Generate a seed based on today's date (YYYY-MM-DD)
+        // This ensures everyone gets the same image for the 24h period
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const dateSeed = `${year}-${month}-${day}`;
+        
+        // Use the seed to get a consistent daily image
+        // Adding 'grayscale' or 'blur' could make it more "complex", 
+        // but let's stick to sharp color images for clarity.
+        const todayUrl = `https://picsum.photos/seed/${dateSeed}/500/500`;
 
         await processImage(todayUrl);
         isTodayChallenge = true;
     } catch (e) {
         console.error(e);
-        alert('Failed to load Today\'s Image. Please try again later.');
+        alert('Failed to load Today\'s Image.');
     } finally {
         todayImageBtn.disabled = false;
         todayImageBtn.textContent = '📅 Today\'s Challenge';
@@ -95,10 +110,8 @@ todayImageBtn.addEventListener('click', async () => {
 randomImageBtn.addEventListener('click', async () => {
     randomImageBtn.disabled = true;
     randomImageBtn.textContent = 'Loading...';
-    
     const randomId = Math.floor(Math.random() * 1000);
     const randomUrl = `https://picsum.photos/500/500?random=${randomId}`;
-    
     try {
         await processImage(randomUrl);
         isTodayChallenge = false;
@@ -116,7 +129,6 @@ mainShareBtn.addEventListener('click', async () => {
         text: '재미있는 이미지 퍼즐 게임입니다! 같이 도전해보세요!',
         url: window.location.href
     };
-
     try {
         if (navigator.share) {
             await navigator.share(shareData);
@@ -124,9 +136,7 @@ mainShareBtn.addEventListener('click', async () => {
             await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
             alert('게임 링크가 클립보드에 복사되었습니다!');
         }
-    } catch (err) {
-        console.error('Sharing failed', err);
-    }
+    } catch (err) { console.error('Sharing failed', err); }
 });
 
 startButton.addEventListener('click', () => {
@@ -154,32 +164,24 @@ function stopTimer() {
 function createPuzzle() {
     puzzleContainer.innerHTML = '';
     puzzlePieces = [];
-    selectedPiece = null; // Reset selection
-
+    selectedPiece = null;
     const pieceWidth = puzzleContainer.clientWidth / gridSize;
     const pieceHeight = puzzleContainer.clientHeight / gridSize;
-    
-    // No emptyPos needed for Swap Puzzle
 
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
-            // Fill ALL cells
             const piece = document.createElement('div');
             piece.classList.add('puzzle-piece');
             piece.style.width = `${pieceWidth}px`;
             piece.style.height = `${pieceHeight}px`;
             piece.style.backgroundImage = `url(${imageSrc})`;
             piece.style.backgroundSize = `${puzzleContainer.clientWidth}px ${puzzleContainer.clientHeight}px`;
-            
             const backgroundPosX = -j * pieceWidth;
             const backgroundPosY = -i * pieceHeight;
             piece.style.backgroundPosition = `${backgroundPosX}px ${backgroundPosY}px`;
-
-            // Initial Position (Solved State)
             piece.style.top = `${i * pieceHeight}px`;
             piece.style.left = `${j * pieceWidth}px`;
 
-            // Store metadata
             const pieceData = {
                 element: piece,
                 currentRow: i,
@@ -187,34 +189,25 @@ function createPuzzle() {
                 correctRow: i,
                 correctCol: j
             };
-            
             puzzlePieces.push(pieceData);
             puzzleContainer.appendChild(piece);
-
-            // Add click listener for Swapping
             piece.addEventListener('click', () => {
                 handlePieceClick(pieceData, pieceWidth, pieceHeight);
             });
         }
     }
-    
-    // Scramble the puzzle
     scramblePuzzle(pieceWidth, pieceHeight);
 }
 
 function handlePieceClick(pieceData, pieceWidth, pieceHeight) {
     if (isScrambling) return;
-
     if (!selectedPiece) {
-        // Select first piece
         selectedPiece = pieceData;
         pieceData.element.classList.add('selected');
     } else if (selectedPiece === pieceData) {
-        // Deselect if clicking same piece
         selectedPiece.element.classList.remove('selected');
         selectedPiece = null;
     } else {
-        // Swap with second piece
         swapPieces(selectedPiece, pieceData, pieceWidth, pieceHeight);
         selectedPiece.element.classList.remove('selected');
         selectedPiece = null;
@@ -223,20 +216,14 @@ function handlePieceClick(pieceData, pieceWidth, pieceHeight) {
 }
 
 function swapPieces(pieceA, pieceB, pieceWidth, pieceHeight) {
-    // Swap logical positions
     const tempRow = pieceA.currentRow;
     const tempCol = pieceA.currentCol;
-
     pieceA.currentRow = pieceB.currentRow;
     pieceA.currentCol = pieceB.currentCol;
-
     pieceB.currentRow = tempRow;
     pieceB.currentCol = tempCol;
-
-    // Swap visual positions
     pieceA.element.style.top = `${pieceA.currentRow * pieceHeight}px`;
     pieceA.element.style.left = `${pieceA.currentCol * pieceWidth}px`;
-
     pieceB.element.style.top = `${pieceB.currentRow * pieceHeight}px`;
     pieceB.element.style.left = `${pieceB.currentCol * pieceWidth}px`;
 }
@@ -244,29 +231,23 @@ function swapPieces(pieceA, pieceB, pieceWidth, pieceHeight) {
 function scramblePuzzle(pieceWidth, pieceHeight) {
     isScrambling = true;
     let moves = 0;
-    const maxMoves = gridSize * gridSize * 2; // Swaps needed
+    const maxMoves = gridSize * gridSize * 2;
     const interval = setInterval(() => {
-        // Randomly select two distinct pieces
         const idx1 = Math.floor(Math.random() * puzzlePieces.length);
         let idx2 = Math.floor(Math.random() * puzzlePieces.length);
-        while (idx1 === idx2) {
-            idx2 = Math.floor(Math.random() * puzzlePieces.length);
-        }
-
+        while (idx1 === idx2) idx2 = Math.floor(Math.random() * puzzlePieces.length);
         swapPieces(puzzlePieces[idx1], puzzlePieces[idx2], pieceWidth, pieceHeight);
-
         moves++;
         if (moves >= maxMoves) {
             clearInterval(interval);
             isScrambling = false;
             startTimer();
         }
-    }, 50); // Slower interval for visual swap clarity
+    }, 50);
 }
 
-function checkCompletion() {
+async function checkCompletion() {
     if (isScrambling) return;
-
     let isComplete = true;
     for (const piece of puzzlePieces) {
         if (piece.currentRow !== piece.correctRow || piece.currentCol !== piece.correctCol) {
@@ -277,67 +258,31 @@ function checkCompletion() {
 
     if (isComplete) {
         stopTimer();
-        
-        // Check if user reached Top 3
         const finalTimeStr = timerDisplay.textContent.replace('Time: ', '').replace('s', '');
         const finalTime = parseFloat(finalTimeStr);
         const difficultyText = difficultySelector.options[difficultySelector.selectedIndex].text;
-        const rank = getPotentialRank(finalTime, difficultyText, isTodayChallenge);
         
-        if (rank <= 3) {
-            showBoardCrown(rank);
-        }
+        // Async Rank Check
+        const rank = await getPotentialRank(finalTime, difficultyText, isTodayChallenge);
+        if (rank <= 3) showBoardCrown(rank);
         
         showSuccessModal();
     }
 }
 
-function getPotentialRank(time, difficulty, isToday) {
-    filterExpiredRecords();
-    let records = JSON.parse(localStorage.getItem('puzzleLeaderboard')) || [];
-    
-    // Updated difficulty mapping for rank calculation
-    const difficultyValue = {
-        'Hard (8x8 - 64pcs)': 3,
-        'Normal (6x6 - 36pcs)': 2,
-        'Easy (4x4 - 16pcs)': 1
-    };
-
-    const currentRecord = {
-        time: time,
-        difficultyVal: difficultyValue[difficulty] || 0,
-        isToday: isToday || false
-    };
-
-    const tempRecords = [...records, currentRecord];
-    tempRecords.sort((a, b) => {
-        const aToday = a.isToday ? 1 : 0;
-        const bToday = b.isToday ? 1 : 0;
-        if (bToday !== aToday) return bToday - aToday;
-        if (b.difficultyVal !== a.difficultyVal) return b.difficultyVal - a.difficultyVal;
-        return a.time - b.time;
-    });
-
-    return tempRecords.findIndex(r => r === currentRecord) + 1;
-}
-
 function showBoardCrown(rank) {
     const crownDiv = document.createElement('div');
     crownDiv.classList.add('success-board-crown');
-    
     const pieceWidth = puzzleContainer.clientWidth / gridSize;
     const pieceHeight = puzzleContainer.clientHeight / gridSize;
-    
     crownDiv.style.width = `${pieceWidth}px`;
     crownDiv.style.height = `${pieceHeight}px`;
     crownDiv.style.left = `${(gridSize - 1) * pieceWidth}px`;
     crownDiv.style.top = `${(gridSize - 1) * pieceHeight}px`;
-
     let crownColor = '';
     if (rank === 1) crownColor = '#FFD700'; 
     else if (rank === 2) crownColor = '#C0C0C0'; 
     else if (rank === 3) crownColor = '#CD7F32'; 
-
     crownDiv.innerHTML = `<span style="color: ${crownColor}">♛</span>`;
     puzzleContainer.appendChild(crownDiv);
 }
@@ -360,24 +305,24 @@ shareBtn.addEventListener('click', async () => {
     const difficultyText = difficultySelector.options[difficultySelector.selectedIndex].text;
     const shareData = {
         title: 'Image Puzzle Game',
-        text: `[퍼즐 게임] ${difficultyText} 난이도를 ${finalTime}만에 완성했습니다! 여러분도 도전해보세요!`,
+        text: `[퍼즐 게임] ${difficultyText} 난이도를 ${finalTime}만에 완성했습니다! 여러분도 도전해보세요!`, 
         url: window.location.href
     };
-
     try {
         if (navigator.share) {
             await navigator.share(shareData);
         } else {
-            // Fallback: Copy to clipboard
             await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
             alert('결과가 클립보드에 복사되었습니다!');
         }
-    } catch (err) {
-        console.error('Sharing failed', err);
-    }
+    } catch (err) { console.error('Sharing failed', err); }
 });
 
-saveRecordBtn.addEventListener('click', () => {
+saveRecordBtn.addEventListener('click', async () => {
+    if (!db) {
+        alert('데이터베이스 연결 실패. firebase-config.js를 확인하세요.');
+        return;
+    }
     const finalTimeStr = timerDisplay.textContent.replace('Time: ', '').replace('s', '');
     const finalTime = parseFloat(finalTimeStr);
     const comment = successThoughts.value;
@@ -385,73 +330,158 @@ saveRecordBtn.addEventListener('click', () => {
     const country = successCountry.value || '🌍';
     const difficultyText = difficultySelector.options[difficultySelector.selectedIndex].text;
 
-    saveToLeaderboard(finalTime, comment, difficultyText, isTodayChallenge, nickname, country);
+    saveRecordBtn.disabled = true;
+    saveRecordBtn.textContent = '저장 중...';
+
+    await saveToLeaderboard(finalTime, comment, difficultyText, isTodayChallenge, nickname, country);
     
+    saveRecordBtn.disabled = false;
+    saveRecordBtn.textContent = '기록 저장 & 닫기';
     successModal.style.display = 'none';
     successThoughts.value = '';
     successNickname.value = '';
 });
 
-function saveToLeaderboard(time, comment, difficulty, isToday, nickname, country) {
-    filterExpiredRecords(); 
-    let records = JSON.parse(localStorage.getItem('puzzleLeaderboard')) || [];
-    
+// --- Firebase Leaderboard Logic ---
+
+async function saveToLeaderboard(time, comment, difficulty, isToday, nickname, country) {
     const difficultyValue = {
         'Hard (8x8 - 64pcs)': 3,
         'Normal (6x6 - 36pcs)': 2,
         'Easy (4x4 - 16pcs)': 1
     };
 
-    records.push({
-        time: time,
-        comment: comment,
-        difficulty: difficulty,
-        difficultyVal: difficultyValue[difficulty] || 0,
-        isToday: isToday || false,
-        timestamp: Date.now(),
-        nickname: nickname,
-        country: country
-    });
-
-    records.sort((a, b) => {
-        const aToday = a.isToday ? 1 : 0;
-        const bToday = b.isToday ? 1 : 0;
-
-        if (bToday !== aToday) return bToday - aToday; 
-        if (b.difficultyVal !== a.difficultyVal) return b.difficultyVal - a.difficultyVal; 
-        return a.time - b.time;
-    });
-
-    if (records.length > 5) records = records.slice(0, 5);
-
-    localStorage.setItem('puzzleLeaderboard', JSON.stringify(records));
-    updateLeaderboardUI();
-}
-
-function filterExpiredRecords() {
-    let records = JSON.parse(localStorage.getItem('puzzleLeaderboard')) || [];
-    const now = Date.now();
-    const MS_IN_DAY = 24 * 60 * 60 * 1000;
-    const MS_IN_5_DAYS = 5 * MS_IN_DAY;
-
-    const filteredRecords = records.filter(record => {
-        const age = now - record.timestamp;
-        if (record.difficulty && record.difficulty.includes('Hard')) {
-            return age < MS_IN_5_DAYS; 
-        }
-        return age < MS_IN_DAY; 
-    });
-
-    if (records.length !== filteredRecords.length) {
-        localStorage.setItem('puzzleLeaderboard', JSON.stringify(filteredRecords));
+    try {
+        await addDoc(collection(db, "leaderboard"), {
+            time: time,
+            comment: comment,
+            difficulty: difficulty,
+            difficultyVal: difficultyValue[difficulty] || 0,
+            isToday: isToday || false,
+            timestamp: Date.now(),
+            nickname: nickname,
+            country: country
+        });
+        await updateLeaderboardUI();
+    } catch (e) {
+        console.error("Error adding document: ", e);
+        alert("기록 저장 실패: " + e.message);
     }
 }
 
-function updateLeaderboardUI() {
-    filterExpiredRecords(); 
-    const records = JSON.parse(localStorage.getItem('puzzleLeaderboard')) || [];
-    leaderboardList.innerHTML = '';
+// Fetch top records from Firebase
+async function updateLeaderboardUI() {
+    if (!db) return;
+    leaderboardList.innerHTML = '<li>Loading...</li>';
 
+    // Query Strategy: Fetch top 30 candidates prioritized by criteria
+    // Since complex mixed-field sorting requires composite indexes in Firestore,
+    // we will start by fetching records sorted by Priority Group (isToday, difficultyVal)
+    // For simplicity without manual index creation, we will fetch recent good records and filter client-side 
+    // or use a simple compound sort if possible.
+    // Let's rely on client-side sorting for the "top" view to avoid index errors for the user immediately.
+    // We will fetch more rows (e.g. 50) ordered by time, then sort fully in JS. 
+    
+    try {
+        // Simple query: Get recent 50 records to show active competition
+        // Ideally: orderBy("isToday", "desc"), orderBy("difficultyVal", "desc"), orderBy("time", "asc")
+        // But this needs index. Let's try basic query and sort in memory for this prototype.
+        const q = query(collection(db, "leaderboard"), orderBy("time", "asc"), limit(50));
+        
+        const querySnapshot = await getDocs(q);
+        let records = [];
+        querySnapshot.forEach((doc) => {
+            records.push(doc.data());
+        });
+
+        // Client-side filtering (Expiration)
+        const now = Date.now();
+        const MS_IN_DAY = 24 * 60 * 60 * 1000;
+        const MS_IN_5_DAYS = 5 * MS_IN_DAY;
+
+        records = records.filter(record => {
+            const age = now - record.timestamp;
+            if (record.difficulty && record.difficulty.includes('Hard')) {
+                return age < MS_IN_5_DAYS; 
+            }
+            return age < MS_IN_DAY; 
+        });
+
+        // Client-side Sorting (Rank Rules)
+        records.sort((a, b) => {
+            const aToday = a.isToday ? 1 : 0;
+            const bToday = b.isToday ? 1 : 0;
+            if (bToday !== aToday) return bToday - aToday; 
+            if (b.difficultyVal !== a.difficultyVal) return b.difficultyVal - a.difficultyVal; 
+            return a.time - b.time;
+        });
+
+        // Take Top 5
+        records = records.slice(0, 5);
+
+        renderLeaderboard(records);
+
+    } catch (e) {
+        console.error("Error fetching leaderboard: ", e);
+        leaderboardList.innerHTML = '<li>Error loading records.</li>';
+    }
+}
+
+// Calculate rank just by fetching data and comparing
+async function getPotentialRank(time, difficulty, isToday) {
+    if (!db) return 999;
+    
+    // Fetch current top records similar to updateLeaderboardUI
+    try {
+        const q = query(collection(db, "leaderboard"), orderBy("time", "asc"), limit(50));
+        const querySnapshot = await getDocs(q);
+        let records = [];
+        querySnapshot.forEach((doc) => records.push(doc.data()));
+
+        const difficultyValue = {
+            'Hard (8x8 - 64pcs)': 3,
+            'Normal (6x6 - 36pcs)': 2,
+            'Easy (4x4 - 16pcs)': 1
+        };
+
+        const currentRecord = {
+            time: time,
+            difficultyVal: difficultyValue[difficulty] || 0,
+            isToday: isToday || false
+        };
+
+        // Filter & Sort
+        const now = Date.now();
+        const MS_IN_DAY = 24 * 60 * 60 * 1000;
+        const MS_IN_5_DAYS = 5 * MS_IN_DAY;
+
+        records = records.filter(record => {
+            const age = now - record.timestamp;
+            if (record.difficulty && record.difficulty.includes('Hard')) {
+                return age < MS_IN_5_DAYS; 
+            }
+            return age < MS_IN_DAY; 
+        });
+
+        const tempRecords = [...records, currentRecord];
+        tempRecords.sort((a, b) => {
+            const aToday = a.isToday ? 1 : 0;
+            const bToday = b.isToday ? 1 : 0;
+            if (bToday !== aToday) return bToday - aToday; 
+            if (b.difficultyVal !== a.difficultyVal) return b.difficultyVal - a.difficultyVal; 
+            return a.time - b.time;
+        });
+
+        return tempRecords.findIndex(r => r === currentRecord) + 1;
+
+    } catch(e) {
+        console.error(e);
+        return 999;
+    }
+}
+
+function renderLeaderboard(records) {
+    leaderboardList.innerHTML = '';
     if (records.length === 0) {
         leaderboardList.innerHTML = '<li>No records yet.</li>';
         return;
@@ -474,7 +504,6 @@ function updateLeaderboardUI() {
         const countryHtml = record.country ? `<span style="margin-right: 4px;">${record.country}</span>` : '';
         const nicknameHtml = record.nickname ? `<span class="record-nickname">${countryHtml}${record.nickname}</span>` : '';
 
-        // Linkify comment
         const linkify = (text) => {
             const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
             return text.replace(urlPattern, '<a href="$1" target="_blank" style="color: #007bff; text-decoration: underline;">링크</a>');

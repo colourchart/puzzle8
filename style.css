@@ -103,6 +103,39 @@ h1 {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+#rank-guide {
+    background-color: #fff3cd;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-left: 4px solid #ffc107;
+    font-size: 0.8rem;
+}
+
+#rank-guide h4 {
+    margin: 0 0 8px 0;
+    color: #856404;
+    text-align: center;
+}
+
+#rank-guide ul {
+    margin: 0;
+    padding: 0 0 0 15px;
+    list-style-type: none;
+}
+
+#rank-guide li {
+    margin-bottom: 4px;
+    color: #666;
+}
+
+#rank-guide .expiration {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: #999;
+    font-style: italic;
+}
+
 #leaderboard h3 {
     margin-top: 0;
     text-align: center;
