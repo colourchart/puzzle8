@@ -154,7 +154,7 @@ randomImageBtn.addEventListener('click', async () => {
 
 mainShareBtn.addEventListener('click', async () => {
     const shareData = {
-        title: 'Image Puzzle Game',
+        title: 'World Puzzle Battle',
         text: '재미있는 이미지 퍼즐 게임입니다! 같이 도전해보세요!',
         url: window.location.href
     };
@@ -350,7 +350,7 @@ shareBtn.addEventListener('click', async () => {
     const finalTime = timerDisplay.textContent.replace('Time: ', '');
     const difficultyText = difficultySelector.options[difficultySelector.selectedIndex].text;
     const shareData = {
-        title: 'Image Puzzle Game',
+        title: 'World Puzzle Battle',
         text: `[퍼즐 게임] ${difficultyText} 난이도를 ${finalTime}만에 완성했습니다! 여러분도 도전해보세요!`, 
         url: window.location.href
     };
