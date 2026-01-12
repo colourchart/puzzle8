@@ -377,18 +377,18 @@ h1 {
     #original-image-container {
         top: 50px;
         right: 10px;
-        max-width: 120px; /* Smaller max-width for mobile */
+        max-width: 150px; /* Slightly larger for better visibility */
         width: auto;
     }
-/* ... rest of media query */
+}
 
 #original-image {
-    max-width: 100%; /* Ensure image scales down */
-    max-height: 200px; /* Prevent it from being too tall */
+    max-width: 100%; 
+    max-height: 300px; /* Increased from 200px to prevent excessive shrinking */
     height: auto;
     border: 1px solid #333;
     display: block;
-    object-fit: contain; /* Ensure full image is visible */
+    object-fit: contain; 
 }
 
 /* Modal Styles */
