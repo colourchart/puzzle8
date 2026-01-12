@@ -8,9 +8,84 @@
 </head>
 <body>
     <h1>Image Puzzle Game</h1>
-    <input type="file" id="image-loader" accept="image/*">
-    <div id="puzzle-container"></div>
-    <button id="start-button">Start Puzzle</button>
+    
+    <div class="controls">
+        <label for="difficulty-selector">Difficulty: </label>
+        <select id="difficulty-selector">
+            <option value="4" selected>Easy (4x4 - 16pcs)</option>
+            <option value="6">Normal (6x6 - 36pcs)</option>
+            <option value="8">Hard (8x8 - 64pcs)</option>
+        </select>
+    </div>
+
+    <div class="image-controls">
+        <button id="today-image-btn" class="primary-btn">📅 Today's Challenge</button>
+        <button id="random-image-btn" class="secondary-btn">🎲 Random Image</button>
+    </div>
+    
+    <div id="timer">Time: 0.0s</div>
+    
+    <div id="sidebar-wrapper">
+        <div id="leaderboard">
+            <h3>Top 5 Records</h3>
+            <ul id="leaderboard-list">
+                <!-- Records will be injected here -->
+            </ul>
+        </div>
+        <button id="main-share-btn" class="leaderboard-share-btn">🔗 Share Game</button>
+    </div>
+
+    <div id="game-area">
+        <div id="original-image-container" style="display: none;">
+            <img id="original-image" src="" alt="Original">
+        </div>
+        <div id="puzzle-container"></div>
+    </div>
+    <button id="start-button" style="display: none;">Start Puzzle</button> <!-- Hidden initially, shown after image load -->
+    
+    <div id="success-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>성공! 축하합니다!</h2>
+            <p id="success-time"></p>
+            <p>퍼즐을 완성하셨습니다.</p>
+            <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                <select id="success-country" style="width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    <option value="🇰🇷">🇰🇷</option>
+                    <option value="🇺🇸">🇺🇸</option>
+                    <option value="🇯🇵">🇯🇵</option>
+                    <option value="🇨🇳">🇨🇳</option>
+                    <option value="🇬🇧">🇬🇧</option>
+                    <option value="🇫🇷">🇫🇷</option>
+                    <option value="🇩🇪">🇩🇪</option>
+                    <option value="🇮🇹">🇮🇹</option>
+                    <option value="🇪🇸">🇪🇸</option>
+                    <option value="🇨🇦">🇨🇦</option>
+                    <option value="🇧🇷">🇧🇷</option>
+                    <option value="🇦🇷">🇦🇷</option>
+                    <option value="🇦🇺">🇦🇺</option>
+                    <option value="🇮🇳">🇮🇳</option>
+                    <option value="🇻🇳">🇻🇳</option>
+                    <option value="🇹🇭">🇹🇭</option>
+                    <option value="🇮🇩">🇮🇩</option>
+                    <option value="🇷🇺">🇷🇺</option>
+                    <option value="🇺🇦">🇺🇦</option>
+                    <option value="🇹🇷">🇹🇷</option>
+                    <option value="🇸🇦">🇸🇦</option>
+                    <option value="🇿🇦">🇿🇦</option>
+                    <option value="🇪🇬">🇪🇬</option>
+                    <option value="🌍">🌍</option>
+                </select>
+                <input type="text" id="success-nickname" placeholder="닉네임 (5자 이내)" maxlength="5" style="flex-grow: 1;">
+            </div>
+            <textarea id="success-thoughts" placeholder="성공 소감을 입력해주세요 (20자 이내)..." rows="4" maxlength="20"></textarea>
+            <div class="modal-buttons">
+                <button id="save-record-btn">기록 저장 & 닫기</button>
+                <button id="share-btn" style="background-color: #007bff;">공유하기</button>
+                <button id="close-modal-btn" style="background-color: #888;">닫기</button>
+            </div>
+        </div>
+    </div>
+
     <script src="main.js"></script>
 </body>
 </html>
