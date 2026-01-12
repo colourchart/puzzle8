@@ -284,6 +284,12 @@ h1 {
         order: 10; /* Ensure it comes after game area if flex container used, or just flow */
     }
 
+    #disqus_container {
+        width: 90% !important;
+        margin-top: 20px !important;
+        padding: 10px !important;
+    }
+
     #original-image-container {
         top: 10px;
         right: 10px;
