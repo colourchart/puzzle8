@@ -41,6 +41,19 @@ let isTodayChallenge = false;
 // Initialize Leaderboard
 updateLeaderboardUI();
 
+const partnershipLink = document.getElementById('partnership-link');
+const partnershipModal = document.getElementById('partnership-modal');
+const closePartnershipBtn = document.getElementById('close-partnership-btn');
+
+partnershipLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    partnershipModal.style.display = 'flex';
+});
+
+closePartnershipBtn.addEventListener('click', () => {
+    partnershipModal.style.display = 'none';
+});
+
 toggleRefBtn.addEventListener('click', () => {
     const originalContainer = document.getElementById('original-image-container');
     if (originalContainer.style.display === 'none' || originalContainer.style.opacity === '0') {

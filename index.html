@@ -50,6 +50,7 @@
             </ul>
         </div>
         <button id="main-share-btn" class="leaderboard-share-btn">🔗 Share Game</button>
+        <a href="#" id="partnership-link" style="text-align: center; font-size: 0.8rem; color: #666; text-decoration: none; margin-top: 5px; font-weight: bold;">🤝 제휴 문의</a>
     </div>
 
     <div id="game-area">
@@ -61,6 +62,29 @@
     </div>
     <button id="start-button" style="display: none;">Start Puzzle</button> <!-- Hidden initially, shown after image load -->
     
+    <!-- Partnership Modal -->
+    <div id="partnership-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>🤝 제휴 문의</h3>
+            <form action="https://formspree.io/f/mk" method="POST">
+                <div style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
+                    <label style="font-size: 0.9rem;">성함/기업명</label>
+                    <input type="text" name="name" required placeholder="홍길동" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    
+                    <label style="font-size: 0.9rem;">회신 이메일</label>
+                    <input type="email" name="_replyto" required placeholder="example@email.com" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    
+                    <label style="font-size: 0.9rem;">문의 내용</label>
+                    <textarea name="message" required rows="5" placeholder="제휴 제안 내용을 적어주세요." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; resize: none;"></textarea>
+                </div>
+                <div class="modal-buttons" style="margin-top: 20px;">
+                    <button type="submit" style="background-color: #28a745;">문의 보내기</button>
+                    <button type="button" id="close-partnership-btn" style="background-color: #888;">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="success-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <h2>성공! 축하합니다!</h2>
