@@ -462,8 +462,8 @@ async function updateLeaderboardUI() {
             return a.time - b.time;
         });
 
-        // Take Top 5
-        records = records.slice(0, 5);
+        // Take Top 3
+        records = records.slice(0, 3);
 
         renderLeaderboard(records);
 
