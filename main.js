@@ -394,8 +394,8 @@ saveRecordBtn.addEventListener('click', async () => {
 
 function calculateScore(time, difficulty, isToday) {
     let weight = 1;
-    if (difficulty.includes('Normal')) weight = 3;
-    if (difficulty.includes('Hard')) weight = 5;
+    if (difficulty.includes('Normal')) weight = 5;
+    if (difficulty.includes('Hard')) weight = 15;
 
     // Base Score = (Weight * 1000) / Time
     // Using 10000 to get distinct integer scores
@@ -447,10 +447,8 @@ async function updateLeaderboardUI() {
         let records = [];
         querySnapshot.forEach((doc) => {
             let data = doc.data();
-            // Backfill score for old records if missing
-            if (data.score === undefined) {
-                data.score = calculateScore(data.time, data.difficulty, data.isToday);
-            }
+            // Always recalculate score to apply latest weight adjustments dynamically
+            data.score = calculateScore(data.time, data.difficulty, data.isToday);
             records.push(data);
         });
 
@@ -490,9 +488,8 @@ async function getPotentialRank(time, difficulty, isToday) {
         let records = [];
         querySnapshot.forEach((doc) => {
             let data = doc.data();
-            if (data.score === undefined) {
-                data.score = calculateScore(data.time, data.difficulty, data.isToday);
-            }
+            // Always recalculate score
+            data.score = calculateScore(data.time, data.difficulty, data.isToday);
             records.push(data);
         });
 
