@@ -275,6 +275,11 @@ h1 {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
     #sidebar-wrapper {
         position: static;
         transform: none;
@@ -288,6 +293,7 @@ h1 {
         width: 90% !important;
         margin-top: 20px !important;
         padding: 10px !important;
+        order: 20; /* Ensure it's at the bottom on mobile */
     }
 
     #original-image-container {
