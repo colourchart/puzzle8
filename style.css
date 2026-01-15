@@ -296,6 +296,17 @@ main {
         flex-direction: column;
     }
 
+    /* Side-by-side buttons on mobile */
+    .image-controls {
+        flex-direction: row; /* Horizontal */
+        width: auto; /* Fit content */
+        flex-wrap: wrap; /* Wrap if screen is too small */
+    }
+    
+    .controls {
+        flex-direction: row; /* Horizontal */
+    }
+
     #sidebar-wrapper {
         position: static;
         transform: none;
