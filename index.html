@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="World Puzzle Battle - Challenge yourself with daily image puzzles! Compete globally, improve your brain power, and rank up with our unique scoring system. Play for free now.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://worldpuzzlebattle.com/">
+    <meta property="og:title" content="World Puzzle Battle - Daily Image Puzzle Challenge">
+    <meta property="og:description" content="Compete globally in World Puzzle Battle! Solve daily puzzles, rank up on the leaderboard, and train your brain.">
+    <meta property="og:image" content="https://picsum.photos/1200/630?grayscale"> <!-- Placeholder image -->
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://worldpuzzlebattle.com/">
+    <meta property="twitter:title" content="World Puzzle Battle - Daily Image Puzzle Challenge">
+    <meta property="twitter:description" content="Compete globally in World Puzzle Battle! Solve daily puzzles, rank up on the leaderboard, and train your brain.">
+    <meta property="twitter:image" content="https://picsum.photos/1200/630?grayscale">
+
     <title>World Puzzle Battle</title>
     <meta name="google-adsense-account" content="ca-pub-4253911322239903">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253911322239903"
@@ -19,82 +34,139 @@
         </span>
         <span class="notice-text">Welcome to the Puzzle Challenge! 1등 두쫀쿠(16일 금 13시 기준)!</span>
     </div>
-    <h1>World Puzzle Battle</h1>
+    <header>
+        <h1>World Puzzle Battle</h1>
+        <!-- AdSlot: Top Banner -->
+        <div class="ad-container ad-top">
+            <span class="ad-placeholder">Advertisement</span>
+            <!-- 
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4253911322239903"
+                 data-ad-slot="YOUR_AD_SLOT_ID_HERE"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+            -->
+        </div>
+    </header>
     
-    <div class="controls">
-        <label for="difficulty-selector">Difficulty: </label>
-        <select id="difficulty-selector">
-            <option value="4" selected>Easy (4x4 - 16pcs)</option>
-            <option value="6">Normal (6x6 - 36pcs)</option>
-            <option value="8">Hard (8x8 - 64pcs)</option>
-        </select>
-    </div>
+    <main>
+        <div class="controls">
+            <label for="difficulty-selector">Difficulty: </label>
+            <select id="difficulty-selector">
+                <option value="4" selected>Easy (4x4 - 16pcs)</option>
+                <option value="6">Normal (6x6 - 36pcs)</option>
+                <option value="8">Hard (8x8 - 64pcs)</option>
+            </select>
+        </div>
 
-    <div class="image-controls">
-        <button id="today-image-btn" class="primary-btn">📅 Today's Challenge</button>
-        <button id="random-image-btn" class="secondary-btn">🎲 Random Image</button>
-    </div>
-    
-    <div id="timer">Time: 0.0s</div>
-    
-    <div id="sidebar-wrapper">
-        <div id="rank-guide">
-            <h4>🏆 Ranking Rules</h4>
-            <ul>
-                <li>1. <b>Score System</b> based</li>
-                <li>2. <b>High Difficulty</b> = More Pts</li>
-                <li>3. <b>Today's</b> = +50% Bonus</li>
-                <li>4. <b>Faster Time</b> = More Pts</li>
-                <li class="expiration">Records expire: 24h<br>(Normal: 3d, Hard: 5d)</li>
-            </ul>
+        <div class="image-controls">
+            <button id="today-image-btn" class="primary-btn">📅 Today's Challenge</button>
+            <button id="random-image-btn" class="secondary-btn">🎲 Random Image</button>
         </div>
-        <div id="leaderboard">
-            <h3>Top 3 Records</h3>
-            <ul id="leaderboard-list">
-                <!-- Records will be injected here -->
-            </ul>
-        </div>
-        <button id="main-share-btn" class="leaderboard-share-btn">🔗 Share Game</button>
-        <a href="#" id="partnership-link" style="text-align: center; font-size: 0.8rem; color: #666; text-decoration: none; margin-top: 5px; font-weight: bold;">🤝 제휴 문의</a>
-    </div>
+        
+        <div id="timer">Time: 0.0s</div>
+        
+        <aside id="sidebar-wrapper">
+            <div id="rank-guide">
+                <h4>🏆 Ranking Rules</h4>
+                <ul>
+                    <li>1. <b>Score System</b> based</li>
+                    <li>2. <b>High Difficulty</b> = More Pts</li>
+                    <li>3. <b>Today's</b> = +50% Bonus</li>
+                    <li>4. <b>Faster Time</b> = More Pts</li>
+                    <li class="expiration">Records expire: 24h<br>(Normal: 3d, Hard: 5d)</li>
+                </ul>
+            </div>
+            <div id="leaderboard">
+                <h3>Top 3 Records</h3>
+                <ul id="leaderboard-list">
+                    <!-- Records will be injected here -->
+                </ul>
+            </div>
+            <button id="main-share-btn" class="leaderboard-share-btn">🔗 Share Game</button>
+            <a href="#" id="partnership-link" style="display:block; text-align: center; font-size: 0.8rem; color: #666; text-decoration: none; margin-top: 10px; font-weight: bold;">🤝 제휴 문의</a>
+            
+            <!-- AdSlot: Sidebar -->
+            <div class="ad-container ad-sidebar">
+                <span class="ad-placeholder" style="font-size: 0.8rem;">Ad</span>
+            </div>
+        </aside>
 
-    <div id="game-area">
-        <div id="original-image-container" style="display: none;">
-            <img id="original-image" src="" alt="Original">
+        <div id="game-area">
+            <div id="original-image-container" style="display: none;">
+                <img id="original-image" src="" alt="Original">
+            </div>
+            <button id="toggle-ref-btn" style="display: none;">👁️ View Ref</button>
+            <div id="puzzle-container"></div>
         </div>
-        <button id="toggle-ref-btn" style="display: none;">👁️ View Ref</button>
-        <div id="puzzle-container"></div>
+        <button id="start-button" style="display: none;">Start Puzzle</button> <!-- Hidden initially, shown after image load -->
+    </main>
+    
+    <div id="cookie-consent-banner" style="display: none; position: fixed; bottom: 0; left: 0; width: 100%; background-color: #333; color: white; padding: 15px; text-align: center; z-index: 9999; box-shadow: 0 -2px 10px rgba(0,0,0,0.2);">
+        <p style="margin: 0 0 10px 0; font-size: 0.9rem; line-height: 1.4;">
+            We use cookies to personalize content and ads, to provide social media features and to analyze our traffic. 
+            We also share information about your use of our site with our social media, advertising and analytics partners.
+            <a href="privacy.html" style="color: #4da3ff; text-decoration: underline;">Learn more</a>
+        </p>
+        <button id="accept-cookies-btn" style="background-color: #28a745; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">Accept</button>
     </div>
-    <button id="start-button" style="display: none;">Start Puzzle</button> <!-- Hidden initially, shown after image load -->
     
     <!-- Game Info Section for High Quality Content -->
-    <div id="game-info-section" style="max-width: 800px; margin: 40px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: left; color: #444;">
+    <article id="game-info-section" style="max-width: 800px; margin: 40px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: left; color: #444;">
         <h2 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px;">About World Puzzle Battle</h2>
         <p>
-            <strong>World Puzzle Battle</strong> is a global platform where puzzle enthusiasts compete in speed and accuracy. 
-            Unlike traditional jigsaw puzzles, our dynamic slide-and-swap mechanism tests your visual memory and reflexes.
-            Every day, a new "Today's Challenge" image is released worldwide, ensuring a fair competition ground for all players.
+            <strong>World Puzzle Battle</strong> is a premier global platform where puzzle enthusiasts compete in speed, accuracy, and cognitive agility. 
+            Unlike traditional static jigsaw puzzles, our dynamic slide-and-swap mechanism tests your visual memory and reflexes in real-time.
+            Every day, a new "Today's Challenge" image is released worldwide, ensuring a level playing field for all participants.
         </p>
 
-        <h3 style="margin-top: 20px; color: #555;">🎮 How to Play & Scoring</h3>
+        <!-- AdSlot: In-Content -->
+        <div class="ad-container ad-content" style="margin: 20px 0; text-align: center;">
+             <span class="ad-placeholder">Advertisement</span>
+        </div>
+
+        <h3 style="margin-top: 20px; color: #555;">🎮 Comprehensive Gameplay Guide & Scoring</h3>
         <p>
+            Mastering World Puzzle Battle requires more than just clicking. It requires strategy.
             Select your difficulty level and click on puzzle pieces to swap them. 
             Your goal is to restore the original image as quickly as possible.
         </p>
         <ul style="line-height: 1.6;">
-            <li><strong>Difficulty Multipliers:</strong> We reward ambition. Playing on <strong>Hard (8x8)</strong> grants significantly more points (15x multiplier) than Easy mode.</li>
-            <li><strong>Today's Challenge:</strong> Participating in the daily event gives you a <strong>+50% Score Bonus</strong>. It's the best way to climb the leaderboard!</li>
-            <li><strong>Speed Matters:</strong> The faster you complete the puzzle, the higher your base score.</li>
+            <li><strong>Difficulty Multipliers:</strong> We reward ambition. Playing on <strong>Hard (8x8)</strong> grants significantly more points (15x multiplier) than Easy mode. High risk, high reward.</li>
+            <li><strong>Today's Challenge:</strong> Participating in the daily event gives you a <strong>+50% Score Bonus</strong>. This is the most effective way to climb the global leaderboard.</li>
+            <li><strong>Speed Matters:</strong> The faster you complete the puzzle, the higher your base score. Every millisecond counts.</li>
         </ul>
 
-        <h3 style="margin-top: 20px; color: #555;">🧠 Benefits of Puzzle Solving</h3>
+        <h3 style="margin-top: 20px; color: #555;">💡 Advanced Strategies for Speed Solving</h3>
         <p>
-            Engaging in daily puzzle solving is not just fun; it's a workout for your brain. 
-            Studies suggest that visual puzzles can improve <strong>short-term memory</strong>, enhance <strong>problem-solving skills</strong>, 
-            and increase <strong>visual-spatial reasoning</strong>. 
-            Take a break from your busy schedule and refresh your mind with a quick game!
+            To reach the top of the leaderboard, consider these techniques used by top players:
         </p>
-    </div>
+        <ol style="line-height: 1.6;">
+            <li><strong>Edge First:</strong> Just like physical puzzles, identifying and placing the border pieces first can provide a framework for the rest of the image.</li>
+            <li><strong>Color Clustering:</strong> Group pieces by dominant colors visually before you start swapping. This reduces the search time for matching pieces.</li>
+            <li><strong>Focus on Unique Features:</strong> Identify high-contrast areas (eyes in a portrait, text in a sign) and place them early to anchor the rest of the puzzle.</li>
+            <li><strong>Memorize the Ref:</strong> Use the "View Ref" button sparingly. Top players memorize the original image before starting the timer to minimize downtime.</li>
+        </ol>
+
+        <h3 style="margin-top: 20px; color: #555;">🧠 The Science: Cognitive Benefits of Puzzle Solving</h3>
+        <p>
+            Engaging in daily puzzle solving is not just entertainment; it is a rigorous workout for your brain. 
+            Neuroscientific studies suggest that visual puzzles can significantly improve:
+        </p>
+        <ul style="line-height: 1.6;">
+            <li><strong>Short-term Memory:</strong> Holding visual shapes and colors in your mind reinforces memory connections.</li>
+            <li><strong>Problem-Solving Skills:</strong> Determining the logic of piece placement enhances critical thinking.</li>
+            <li><strong>Visual-Spatial Reasoning:</strong> improved ability to perceive relationships between objects in space.</li>
+            <li><strong>Dopamine Production:</strong> The satisfaction of placing a piece correctly releases dopamine, improving mood and concentration.</li>
+        </ul>
+        <p>
+            Take a break from your busy schedule and refresh your mind with a quick game. Join the World Puzzle Battle community today and track your cognitive progress!
+        </p>
+    </article>
 
     <footer style="margin-top: 30px; padding: 20px; color: #666; font-size: 0.9rem; text-align: center;">
         <p>&copy; 2026 World Puzzle Battle. All rights reserved.</p>

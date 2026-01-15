@@ -403,6 +403,19 @@ saveRecordBtn.addEventListener('click', async () => {
     successNickname.value = '';
 });
 
+// --- Cookie Consent Logic ---
+const cookieBanner = document.getElementById('cookie-consent-banner');
+const acceptCookiesBtn = document.getElementById('accept-cookies-btn');
+
+if (!localStorage.getItem('cookieConsent')) {
+    cookieBanner.style.display = 'block';
+}
+
+acceptCookiesBtn.addEventListener('click', () => {
+    localStorage.setItem('cookieConsent', 'true');
+    cookieBanner.style.display = 'none';
+});
+
 // --- Firebase Leaderboard Logic ---
 
 // ... (previous imports and code)
@@ -456,7 +469,8 @@ async function updateLeaderboardUI() {
 
     try {
         // Fetch more records to sort client-side
-        const q = query(collection(db, "leaderboard"), orderBy("time", "asc"), limit(100));
+        // FIXED: Query by SCORE descending, not TIME ascending.
+        const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(100));
         
         const querySnapshot = await getDocs(q);
         let records = [];
@@ -502,7 +516,7 @@ async function getPotentialRank(time, difficulty, isToday) {
     if (!db) return 999;
     
     try {
-        const q = query(collection(db, "leaderboard"), orderBy("time", "asc"), limit(100));
+        const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(100));
         const querySnapshot = await getDocs(q);
         let records = [];
         querySnapshot.forEach((doc) => {
